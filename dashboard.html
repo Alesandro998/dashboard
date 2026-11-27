@@ -9,6 +9,7 @@
     :root {
       --bg: #020617;
       --card: #0f172a;
+      --card-2: #131c31;
       --border: #1e293b;
       --text: #f8fafc;
       --muted: #94a3b8;
@@ -20,14 +21,15 @@
     }
     * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { margin: 0; background: var(--bg); color: var(--text); padding: 24px; }
-    .container { max-width: 1260px; margin: 0 auto; }
+    .container { max-width: 1280px; margin: 0 auto; }
 
     .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; padding: 18px 22px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
     .header h1 { margin: 0; font-size: 22px; }
     .header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
     .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    input, button { border-radius: 10px; border: 1px solid var(--border); font-size: 13px; padding: 9px 12px; }
-    input { background: var(--bg); color: var(--text); width: 72px; text-align: center; }
+    input, select, button { border-radius: 10px; border: 1px solid var(--border); font-size: 13px; padding: 9px 12px; }
+    input[type="number"] { background: var(--bg); color: var(--text); width: 72px; text-align: center; }
+    select { background: var(--bg); color: var(--text); cursor: pointer; }
     label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
     button { background: linear-gradient(135deg, #06b6d4, #6366f1); color: white; font-weight: 700; border: none; cursor: pointer; }
     button:hover { opacity: 0.92; }
@@ -39,22 +41,27 @@
     .kpi .value { font-size: 28px; font-weight: 800; margin: 6px 0 2px; }
     .kpi .sub { font-size: 12px; color: var(--muted); }
 
-    .grid-main { display: grid; grid-template-columns: 1.45fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .grid-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-main { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-sub { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
     .panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
-    .panel h3 { margin: 0 0 4px; font-size: 16px; }
-    .panel .desc { margin: 0 0 14px; font-size: 12px; color: var(--muted); }
-    .chart-box { position: relative; height: 265px; }
+    .panel-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .panel h3 { margin: 0; font-size: 16px; }
+    .panel .desc { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
+    .chart-box { position: relative; height: 275px; }
+
+    .table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+    th { background: var(--card-2); color: var(--muted); font-size: 11px; text-transform: uppercase; position: sticky; top: 0; z-index: 1; }
+    tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
 
     .risk-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; display: inline-block; }
     .risk-alto { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
     .risk-medio { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
     .risk-bajo { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
-    th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    .risk-slate { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
 
-    @media (max-width: 900px) {
+    @media (max-width: 960px) {
       .grid-main, .grid-sub { grid-template-columns: 1fr; }
     }
   </style>
@@ -82,7 +89,7 @@
       <div class="kpi" style="--accent: var(--red);">
         <div class="label">Caídas Únicas</div>
         <div class="value" id="kpiUnicos">0</div>
-        <div class="sub" id="kpiSubEventos">Eventos totales: 0</div>
+        <div class="sub" id="kpiSubEventos">Eventos registrados: 0</div>
       </div>
       <div class="kpi" style="--accent: var(--amber);">
         <div class="label">Tasa de Interacción</div>
@@ -98,38 +105,73 @@
 
     <div class="grid-main">
       <div class="panel">
-        <h3>📊 Comparativa por Integrante</h3>
-        <p class="desc">Enviados planificados vs. caídas únicas deduplicadas vs. mini taller completado</p>
+        <div class="panel-header">
+          <div>
+            <h3>📊 Comparativa por Integrante</h3>
+            <p class="desc">Cantidad visible sobre cada barra: enviados, caídas únicas y taller completado</p>
+          </div>
+        </div>
         <div class="chart-box"><canvas id="chartBarras"></canvas></div>
       </div>
+
       <div class="panel">
-        <h3>🍩 Estado de los Participantes</h3>
-        <p class="desc">Sin clic confirmado vs. cayeron y completaron el taller vs. cayeron sin terminar</p>
+        <div class="panel-header">
+          <div>
+            <h3>🍩 Estado de los Participantes (%)</h3>
+            <p class="desc">Porcentajes fijos sobre el total de mensajes enviados</p>
+          </div>
+        </div>
         <div class="chart-box"><canvas id="chartDona"></canvas></div>
       </div>
     </div>
 
     <div class="grid-sub">
       <div class="panel">
-        <h3>📈 Clics Confirmados por Hora</h3>
-        <p class="desc">Distribución temporal de interacciones registradas</p>
-        <div class="chart-box"><canvas id="chartLinea"></canvas></div>
+        <div class="panel-header">
+          <div>
+            <h3>📋 Matriz de Interacciones Registradas</h3>
+            <p class="desc">Bitácora anónima en tiempo real (hora, código, evento y estado del taller)</p>
+          </div>
+          <select id="filtroAlumno" onchange="renderizarMatriz()">
+            <option value="ALL">Todos los códigos</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Código</th>
+                <th>Evento</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tablaMatriz"></tbody>
+          </table>
+        </div>
       </div>
+
       <div class="panel">
-        <h3>🛡️ Semáforo de Exposición por Integrante</h3>
-        <p class="desc">Resumen con denominador explícito por integrante</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Enviados</th>
-              <th>Únicos</th>
-              <th>Tasa</th>
-              <th>Riesgo</th>
-            </tr>
-          </thead>
-          <tbody id="tablaResumen"></tbody>
-        </table>
+        <div class="panel-header">
+          <div>
+            <h3>🛡️ Semáforo de Exposición por Integrante</h3>
+            <p class="desc">Resumen con denominador explícito por integrante</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Enviados</th>
+                <th>Únicos</th>
+                <th>Tasa</th>
+                <th>Riesgo</th>
+              </tr>
+            </thead>
+            <tbody id="tablaResumen"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -137,7 +179,58 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";
 
-    let chartBarras, chartDona, chartLinea;
+    let chartBarras, chartDona;
+    let eventosActuales = [];
+
+    // Plugin para dibujar números fijos sobre barras y porcentajes fijos en la dona
+    const etiquetasFijasPlugin = {
+      id: "etiquetasFijas",
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+
+        if (chart.config.type === "bar") {
+          chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            meta.data.forEach((bar, index) => {
+              const val = dataset.data[index];
+              ctx.fillStyle = "#f8fafc";
+              ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "bottom";
+              ctx.fillText(String(val), bar.x, bar.y - 4);
+            });
+          });
+        }
+
+        if (chart.config.type === "doughnut") {
+          const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+          const meta = chart.getDatasetMeta(0);
+          meta.data.forEach((arc, index) => {
+            const val = chart.data.datasets[0].data[index];
+            if (!total || val <= 0) return;
+            const pct = ((val / total) * 100).toFixed(1) + "%";
+            const pos = arc.tooltipPosition();
+
+            ctx.font = "800 11px 'Segoe UI', system-ui, sans-serif";
+            const anchoTexto = ctx.measureText(pct).width + 10;
+            ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+            ctx.beginPath();
+            ctx.roundRect(pos.x - anchoTexto / 2, pos.y - 10, anchoTexto, 20, 6);
+            ctx.fill();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(pct, pos.x, pos.y);
+          });
+        }
+
+        ctx.restore();
+      }
+    };
+
+    Chart.register(etiquetasFijasPlugin);
 
     async function cargarDatos() {
       let eventos = [];
@@ -152,9 +245,17 @@
           `Sincronizado con Google Sheets • Última carga: ${new Date().toLocaleTimeString()}`;
       } catch (err) {
         document.getElementById("estadoSync").textContent =
-          "No se pudo leer en vivo (revisa permisos de Apps Script en 'Cualquier persona' o abre desde un servidor local).";
+          "No se pudo leer en vivo (revisa permisos de Apps Script en 'Cualquier persona' o abre desde GitHub Pages/servidor local).";
       }
+
+      eventosActuales = eventos;
       renderizarDashboard(eventos);
+    }
+
+    function extraerHora(fechaHoraStr) {
+      if (!fechaHoraStr) return "--:--";
+      const partes = String(fechaHoraStr).trim().split(/\s+/);
+      return partes.length > 1 ? partes[1] : String(fechaHoraStr);
     }
 
     function renderizarDashboard(eventos) {
@@ -172,11 +273,20 @@
         }
       });
 
+      const selectFiltro = document.getElementById("filtroAlumno");
+      const valorPrevio = selectFiltro.value;
+      selectFiltro.innerHTML = `<option value="ALL">Todos los códigos</option>`;
+      codigosAlumnos.forEach(c => {
+        selectFiltro.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+      if ([...selectFiltro.options].some(o => o.value === valorPrevio)) {
+        selectFiltro.value = valorPrevio;
+      }
+
       const clicsUnicosSet = new Set();
       const tallerUnicosSet = new Set();
       const unicosPorAlumno = {};
       const tallerPorAlumno = {};
-      const porHora = {};
 
       codigosAlumnos.forEach(c => {
         unicosPorAlumno[c] = new Set();
@@ -189,12 +299,6 @@
           clicsUnicosSet.add(clave);
           if (!unicosPorAlumno[ev.alumno]) unicosPorAlumno[ev.alumno] = new Set();
           unicosPorAlumno[ev.alumno].add(clave);
-
-          const partes = (ev.fechaHora || "").split(" ");
-          if (partes[1]) {
-            const hora = partes[1].split(":")[0] + ":00";
-            porHora[hora] = (porHora[hora] || 0) + 1;
-          }
         }
         if (ev.evento === "taller_completado") {
           tallerUnicosSet.add(clave);
@@ -220,8 +324,8 @@
       const arrTaller = codigosAlumnos.map(c => (tallerPorAlumno[c] ? tallerPorAlumno[c].size : 0));
       const arrEnviados = codigosAlumnos.map(() => enviadosPorInt);
 
-      const tbody = document.getElementById("tablaResumen");
-      tbody.innerHTML = "";
+      const tbodyResumen = document.getElementById("tablaResumen");
+      tbodyResumen.innerHTML = "";
       codigosAlumnos.forEach((c, idx) => {
         const u = arrUnicos[idx];
         const pct = (u / enviadosPorInt) * 100;
@@ -229,7 +333,7 @@
         if (pct >= 40) badge = `<span class="risk-badge risk-alto">Alto</span>`;
         else if (pct >= 20) badge = `<span class="risk-badge risk-medio">Medio</span>`;
 
-        tbody.innerHTML += `
+        tbodyResumen.innerHTML += `
           <tr>
             <td><strong>${c}</strong></td>
             <td>${enviadosPorInt}</td>
@@ -240,24 +344,33 @@
         `;
       });
 
+      renderizarMatriz();
+
       if (chartBarras) chartBarras.destroy();
       if (chartDona) chartDona.destroy();
-      if (chartLinea) chartLinea.destroy();
 
       Chart.defaults.color = "#94a3b8";
       Chart.defaults.borderColor = "#1e293b";
+
+      const maxY = Math.max(enviadosPorInt + 3, ...arrEnviados, 5);
 
       chartBarras = new Chart(document.getElementById("chartBarras"), {
         type: "bar",
         data: {
           labels: codigosAlumnos,
           datasets: [
-            { label: "Enviados", data: arrEnviados, backgroundColor: "rgba(34, 211, 238, 0.75)", borderRadius: 6 },
-            { label: "Caídas Únicas", data: arrUnicos, backgroundColor: "rgba(244, 63, 94, 0.85)", borderRadius: 6 },
-            { label: "Taller Completado", data: arrTaller, backgroundColor: "rgba(16, 185, 129, 0.85)", borderRadius: 6 }
+            { label: "Enviados", data: arrEnviados, backgroundColor: "rgba(34, 211, 238, 0.78)", borderRadius: 6 },
+            { label: "Caídas Únicas", data: arrUnicos, backgroundColor: "rgba(244, 63, 94, 0.88)", borderRadius: 6 },
+            { label: "Taller Completado", data: arrTaller, backgroundColor: "rgba(16, 185, 129, 0.88)", borderRadius: 6 }
           ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "top" } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 20 } },
+          scales: { y: { beginAtZero: true, suggestedMax: maxY, ticks: { precision: 0 } } },
+          plugins: { legend: { position: "top" } }
+        }
       });
 
       const cayeronSinTaller = Math.max(0, totalUnicos - totalTaller);
@@ -270,28 +383,74 @@
           datasets: [{
             data: [sinClic, totalTaller, cayeronSinTaller],
             backgroundColor: ["#334155", "#10b981", "#f59e0b"],
-            borderWidth: 0
+            borderWidth: 2,
+            borderColor: "#0f172a"
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, cutout: "65%", plugins: { legend: { position: "bottom" } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "58%",
+          plugins: { legend: { position: "bottom" } }
+        }
       });
+    }
 
-      const horas = Object.keys(porHora).sort();
-      chartLinea = new Chart(document.getElementById("chartLinea"), {
-        type: "line",
-        data: {
-          labels: horas.length ? horas : ["Sin clics aún"],
-          datasets: [{
-            label: "Clics confirmados",
-            data: horas.length ? horas.map(h => porHora[h]) : [0],
-            borderColor: "#a855f7",
-            backgroundColor: "rgba(168, 85, 247, 0.18)",
-            fill: true,
-            tension: 0.35,
-            pointRadius: 4
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+    function renderizarMatriz() {
+      const filtro = document.getElementById("filtroAlumno").value;
+      const tbody = document.getElementById("tablaMatriz");
+      tbody.innerHTML = "";
+
+      const clavesConTaller = new Set(
+        eventosActuales
+          .filter(e => e.evento === "taller_completado")
+          .map(e => e.clave || `${e.alumno}-${e.participante}`)
+      );
+
+      const conteoClics = {};
+      eventosActuales
+        .filter(e => e.evento === "click_confirmado")
+        .forEach(e => {
+          const k = e.clave || `${e.alumno}-${e.participante}`;
+          conteoClics[k] = (conteoClics[k] || 0) + 1;
+        });
+
+      const vistosClic = new Set();
+      const filtrados = eventosActuales.filter(ev => filtro === "ALL" || ev.alumno === filtro);
+
+      if (!filtrados.length) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:18px;">Sin eventos registrados todavía</td></tr>`;
+        return;
+      }
+
+      [...filtrados].reverse().forEach(ev => {
+        const clave = ev.clave || `${ev.alumno}-${ev.participante}`;
+        const hora = extraerHora(ev.fechaHora);
+        let estadoHtml = `<span class="risk-badge risk-slate">Registrado</span>`;
+
+        if (ev.evento === "click_confirmado") {
+          const repetido = vistosClic.has(clave);
+          vistosClic.add(clave);
+          if (clavesConTaller.has(clave)) {
+            estadoHtml = `<span class="risk-badge risk-bajo">Caída + Taller OK</span>`;
+          } else {
+            estadoHtml = `<span class="risk-badge risk-medio">Caída sin taller</span>`;
+          }
+          if (repetido || (conteoClics[clave] || 0) > 1) {
+            estadoHtml += ` <span class="risk-badge risk-slate">Clic x${conteoClics[clave]}</span>`;
+          }
+        } else if (ev.evento === "taller_completado") {
+          estadoHtml = `<span class="risk-badge risk-bajo">Taller completado</span>`;
+        }
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${hora}</td>
+            <td><strong>${clave}</strong></td>
+            <td>${ev.evento}</td>
+            <td>${estadoHtml}</td>
+          </tr>
+        `;
       });
     }
 
