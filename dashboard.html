@@ -321,7 +321,7 @@
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
               <h2 class="h6 fw-bold mb-1" style="color: var(--xmas-gold-soft);">📋 Matriz de Interacciones Registradas</h2>
-              <p class="text-secondary small mb-0">Registro anónimo en tiempo real: hora, código, evento y estado del taller</p>
+              <p class="text-secondary small mb-0">Registro anónimo en tiempo real: fecha y hora, código, evento y estado</p>
             </div>
             <select id="filtroAlumno" class="form-select form-select-sm bg-dark text-light border-secondary" style="width: auto;" onchange="renderizarMatriz()">
               <option value="ALL">Todos los integrantes</option>
@@ -332,7 +332,7 @@
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>Hora</th>
+                  <th>Fecha y Hora</th>
                   <th>Código</th>
                   <th>Evento</th>
                   <th>Estado</th>
@@ -378,6 +378,41 @@
     let eventosActuales = [];
     let ultimaFirmaDatos = "";
     let peticionEnCurso = false;
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function formatearFechaHoraCompleta(valor) {
+      if (!valor) return "--/--/---- --:--:--";
+
+      // Si viene en formato "DD/MM/YYYY HH:mm:ss" o "D/M/YYYY H:m:s"
+      const str = String(valor).trim();
+      const matchLatam = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+      if (matchLatam) {
+        const dia = pad2(matchLatam[1]);
+        const mes = pad2(matchLatam[2]);
+        const anio = matchLatam[3];
+        const hh = pad2(matchLatam[4] ?? 0);
+        const mm = pad2(matchLatam[5] ?? 0);
+        const ss = pad2(matchLatam[6] ?? 0);
+        return `${dia}/${mes}/${anio} ${hh}:${mm}:${ss}`;
+      }
+
+      // Si viene en formato ISO o timestamp de Google Sheets
+      const fecha = new Date(str);
+      if (!isNaN(fecha.getTime())) {
+        const dia = pad2(fecha.getDate());
+        const mes = pad2(fecha.getMonth() + 1);
+        const anio = fecha.getFullYear();
+        const hh = pad2(fecha.getHours());
+        const mm = pad2(fecha.getMinutes());
+        const ss = pad2(fecha.getSeconds());
+        return `${dia}/${mes}/${anio} ${hh}:${mm}:${ss}`;
+      }
+
+      return str;
+    }
 
     function dibujarCajaEtiqueta(ctx, texto, x, y, bgColor, textColor) {
       ctx.save();
@@ -472,12 +507,6 @@
       } finally {
         peticionEnCurso = false;
       }
-    }
-
-    function extraerHora(fechaHoraStr) {
-      if (!fechaHoraStr) return "--:--";
-      const partes = String(fechaHoraStr).trim().split(/\s+/);
-      return partes.length > 1 ? partes[1] : String(fechaHoraStr);
     }
 
     function renderizarDashboard(eventos) {
@@ -649,7 +678,7 @@
 
       [...filtrados].reverse().forEach(ev => {
         const clave = ev.clave || `${ev.alumno}-${ev.participante}`;
-        const hora = extraerHora(ev.fechaHora);
+        const fechaHora = formatearFechaHoraCompleta(ev.fechaHora);
         let estadoHtml = `<span class="badge rounded-pill pill-neutral">Registrado</span>`;
 
         if (ev.evento === "click_confirmado") {
@@ -669,7 +698,7 @@
 
         tbody.innerHTML += `
           <tr>
-            <td>${hora}</td>
+            <td>${fechaHora}</td>
             <td><strong>${clave}</strong></td>
             <td>${ev.evento}</td>
             <td>${estadoHtml}</td>
