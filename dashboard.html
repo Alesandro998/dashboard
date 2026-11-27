@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Smishing Navideño 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #0f172a;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --cyan: #22d3ee;
+      --green: #10b981;
+      --red: #f43f5e;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 24px; }
+    .container { max-width: 1260px; margin: 0 auto; }
+
+    .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; padding: 18px 22px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    input, button { border-radius: 10px; border: 1px solid var(--border); font-size: 13px; padding: 9px 12px; }
+    input { background: var(--bg); color: var(--text); width: 72px; text-align: center; }
+    label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    button { background: linear-gradient(135deg, #06b6d4, #6366f1); color: white; font-weight: 700; border: none; cursor: pointer; }
+    button:hover { opacity: 0.92; }
+
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; position: relative; overflow: hidden; }
+    .kpi::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--cyan)); }
+    .kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+    .kpi .value { font-size: 28px; font-weight: 800; margin: 6px 0 2px; }
+    .kpi .sub { font-size: 12px; color: var(--muted); }
+
+    .grid-main { display: grid; grid-template-columns: 1.45fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+    .panel h3 { margin: 0 0 4px; font-size: 16px; }
+    .panel .desc { margin: 0 0 14px; font-size: 12px; color: var(--muted); }
+    .chart-box { position: relative; height: 265px; }
+
+    .risk-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .risk-alto { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .risk-medio { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .risk-bajo { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+
+    @media (max-width: 900px) {
+      .grid-main, .grid-sub { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>🎄 Dashboard de Resultados — Campaña Smishing Navideño</h1>
+        <p id="estadoSync">Conectando con Google Sheets...</p>
+      </div>
+      <div class="controls">
+        <label>Enviados/int.: <input type="number" id="enviadosPorIntegrante" value="20" min="1" /></label>
+        <label>Integrantes: <input type="number" id="numIntegrantes" value="3" min="1" /></label>
+        <button onclick="cargarDatos()">🔄 Actualizar</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi" style="--accent: var(--cyan);">
+        <div class="label">Total Enviados</div>
+        <div class="value" id="kpiEnviados">0</div>
+        <div class="sub" id="kpiSubEnviados">Mínimo 20 por integrante</div>
+      </div>
+      <div class="kpi" style="--accent: var(--red);">
+        <div class="label">Caídas Únicas</div>
+        <div class="value" id="kpiUnicos">0</div>
+        <div class="sub" id="kpiSubEventos">Eventos totales: 0</div>
+      </div>
+      <div class="kpi" style="--accent: var(--amber);">
+        <div class="label">Tasa de Interacción</div>
+        <div class="value" id="kpiTasa">0.0%</div>
+        <div class="sub">Únicos / Enviados efectivos</div>
+      </div>
+      <div class="kpi" style="--accent: var(--green);">
+        <div class="label">Mini Taller Completado</div>
+        <div class="value" id="kpiTaller">0.0%</div>
+        <div class="sub" id="kpiSubTaller">0 de 0 que cayeron</div>
+      </div>
+    </div>
+
+    <div class="grid-main">
+      <div class="panel">
+        <h3>📊 Comparativa por Integrante</h3>
+        <p class="desc">Enviados planificados vs. caídas únicas deduplicadas vs. mini taller completado</p>
+        <div class="chart-box"><canvas id="chartBarras"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>🍩 Estado de los Participantes</h3>
+        <p class="desc">Sin clic confirmado vs. cayeron y completaron el taller vs. cayeron sin terminar</p>
+        <div class="chart-box"><canvas id="chartDona"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid-sub">
+      <div class="panel">
+        <h3>📈 Clics Confirmados por Hora</h3>
+        <p class="desc">Distribución temporal de interacciones registradas</p>
+        <div class="chart-box"><canvas id="chartLinea"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>🛡️ Semáforo de Exposición por Integrante</h3>
+        <p class="desc">Resumen con denominador explícito por integrante</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Enviados</th>
+              <th>Únicos</th>
+              <th>Tasa</th>
+              <th>Riesgo</th>
+            </tr>
+          </thead>
+          <tbody id="tablaResumen"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";
+
+    let chartBarras, chartDona, chartLinea;
+
+    async function cargarDatos() {
+      let eventos = [];
+      try {
+        const sep = API_URL.includes("?") ? "&" : "?";
+        const res = await fetch(`${API_URL}${sep}api=datos`);
+        const json = await res.json();
+        if (json && Array.isArray(json.eventos)) {
+          eventos = json.eventos;
+        }
+        document.getElementById("estadoSync").textContent =
+          `Sincronizado con Google Sheets • Última carga: ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        document.getElementById("estadoSync").textContent =
+          "No se pudo leer en vivo (revisa permisos de Apps Script en 'Cualquier persona' o abre desde un servidor local).";
+      }
+      renderizarDashboard(eventos);
+    }
+
+    function renderizarDashboard(eventos) {
+      const enviadosPorInt = Math.max(1, parseInt(document.getElementById("enviadosPorIntegrante").value) || 20);
+      const numInt = Math.max(1, parseInt(document.getElementById("numIntegrantes").value) || 1);
+      const totalEnviados = enviadosPorInt * numInt;
+
+      const codigosAlumnos = [];
+      for (let i = 1; i <= numInt; i++) {
+        codigosAlumnos.push("ALU" + String(i).padStart(3, "0"));
+      }
+      eventos.forEach(ev => {
+        if (ev.alumno && !codigosAlumnos.includes(ev.alumno)) {
+          codigosAlumnos.push(ev.alumno);
+        }
+      });
+
+      const clicsUnicosSet = new Set();
+      const tallerUnicosSet = new Set();
+      const unicosPorAlumno = {};
+      const tallerPorAlumno = {};
+      const porHora = {};
+
+      codigosAlumnos.forEach(c => {
+        unicosPorAlumno[c] = new Set();
+        tallerPorAlumno[c] = new Set();
+      });
+
+      eventos.forEach(ev => {
+        const clave = ev.clave || `${ev.alumno}-${ev.participante}`;
+        if (ev.evento === "click_confirmado") {
+          clicsUnicosSet.add(clave);
+          if (!unicosPorAlumno[ev.alumno]) unicosPorAlumno[ev.alumno] = new Set();
+          unicosPorAlumno[ev.alumno].add(clave);
+
+          const partes = (ev.fechaHora || "").split(" ");
+          if (partes[1]) {
+            const hora = partes[1].split(":")[0] + ":00";
+            porHora[hora] = (porHora[hora] || 0) + 1;
+          }
+        }
+        if (ev.evento === "taller_completado") {
+          tallerUnicosSet.add(clave);
+          if (!tallerPorAlumno[ev.alumno]) tallerPorAlumno[ev.alumno] = new Set();
+          tallerPorAlumno[ev.alumno].add(clave);
+        }
+      });
+
+      const totalUnicos = clicsUnicosSet.size;
+      const totalTaller = tallerUnicosSet.size;
+      const tasa = ((totalUnicos / totalEnviados) * 100).toFixed(1);
+      const tasaTaller = totalUnicos > 0 ? ((totalTaller / totalUnicos) * 100).toFixed(1) : "0.0";
+
+      document.getElementById("kpiEnviados").textContent = totalEnviados;
+      document.getElementById("kpiSubEnviados").textContent = `${enviadosPorInt} enviados × ${codigosAlumnos.length} códigos`;
+      document.getElementById("kpiUnicos").textContent = totalUnicos;
+      document.getElementById("kpiSubEventos").textContent = `Eventos registrados: ${eventos.length}`;
+      document.getElementById("kpiTasa").textContent = `${tasa}%`;
+      document.getElementById("kpiTaller").textContent = `${tasaTaller}%`;
+      document.getElementById("kpiSubTaller").textContent = `${totalTaller} de ${totalUnicos} que cayeron`;
+
+      const arrUnicos = codigosAlumnos.map(c => (unicosPorAlumno[c] ? unicosPorAlumno[c].size : 0));
+      const arrTaller = codigosAlumnos.map(c => (tallerPorAlumno[c] ? tallerPorAlumno[c].size : 0));
+      const arrEnviados = codigosAlumnos.map(() => enviadosPorInt);
+
+      const tbody = document.getElementById("tablaResumen");
+      tbody.innerHTML = "";
+      codigosAlumnos.forEach((c, idx) => {
+        const u = arrUnicos[idx];
+        const pct = (u / enviadosPorInt) * 100;
+        let badge = `<span class="risk-badge risk-bajo">Bajo</span>`;
+        if (pct >= 40) badge = `<span class="risk-badge risk-alto">Alto</span>`;
+        else if (pct >= 20) badge = `<span class="risk-badge risk-medio">Medio</span>`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${c}</strong></td>
+            <td>${enviadosPorInt}</td>
+            <td>${u}</td>
+            <td>${pct.toFixed(1)}%</td>
+            <td>${badge}</td>
+          </tr>
+        `;
+      });
+
+      if (chartBarras) chartBarras.destroy();
+      if (chartDona) chartDona.destroy();
+      if (chartLinea) chartLinea.destroy();
+
+      Chart.defaults.color = "#94a3b8";
+      Chart.defaults.borderColor = "#1e293b";
+
+      chartBarras = new Chart(document.getElementById("chartBarras"), {
+        type: "bar",
+        data: {
+          labels: codigosAlumnos,
+          datasets: [
+            { label: "Enviados", data: arrEnviados, backgroundColor: "rgba(34, 211, 238, 0.75)", borderRadius: 6 },
+            { label: "Caídas Únicas", data: arrUnicos, backgroundColor: "rgba(244, 63, 94, 0.85)", borderRadius: 6 },
+            { label: "Taller Completado", data: arrTaller, backgroundColor: "rgba(16, 185, 129, 0.85)", borderRadius: 6 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "top" } } }
+      });
+
+      const cayeronSinTaller = Math.max(0, totalUnicos - totalTaller);
+      const sinClic = Math.max(0, totalEnviados - totalUnicos);
+
+      chartDona = new Chart(document.getElementById("chartDona"), {
+        type: "doughnut",
+        data: {
+          labels: ["Sin clic confirmado", "Cayeron + Taller hecho", "Cayeron sin terminar taller"],
+          datasets: [{
+            data: [sinClic, totalTaller, cayeronSinTaller],
+            backgroundColor: ["#334155", "#10b981", "#f59e0b"],
+            borderWidth: 0
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: "65%", plugins: { legend: { position: "bottom" } } }
+      });
+
+      const horas = Object.keys(porHora).sort();
+      chartLinea = new Chart(document.getElementById("chartLinea"), {
+        type: "line",
+        data: {
+          labels: horas.length ? horas : ["Sin clics aún"],
+          datasets: [{
+            label: "Clics confirmados",
+            data: horas.length ? horas.map(h => porHora[h]) : [0],
+            borderColor: "#a855f7",
+            backgroundColor: "rgba(168, 85, 247, 0.18)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      });
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>
