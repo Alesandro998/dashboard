@@ -36,7 +36,6 @@
       padding: 14px 0 28px;
     }
 
-    /* Guirnalda navideña superior */
     .garland {
       display: flex;
       justify-content: space-around;
@@ -219,7 +218,6 @@
   </style>
 </head>
 <body>
-  <!-- Guirnalda de luces navideñas -->
   <div class="garland" aria-hidden="true">
     <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
     <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
@@ -228,7 +226,6 @@
   </div>
 
   <div class="container-xl">
-    <!-- Encabezado -->
     <div class="xmas-box xmas-hero p-4 mb-4">
       <div class="row align-items-center g-3">
         <div class="col-lg-7">
@@ -257,7 +254,6 @@
       </div>
     </div>
 
-    <!-- KPIs -->
     <div class="row g-3 mb-4">
       <div class="col-sm-6 col-xl-3">
         <div class="kpi-card">
@@ -293,7 +289,6 @@
       </div>
     </div>
 
-    <!-- Barras + Dona -->
     <div class="row g-4 mb-4">
       <div class="col-lg-7">
         <div class="xmas-box p-4 h-100">
@@ -320,7 +315,6 @@
       </div>
     </div>
 
-    <!-- Matriz + Semáforo -->
     <div class="row g-4">
       <div class="col-lg-7">
         <div class="xmas-box p-4 h-100">
@@ -377,28 +371,59 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";[cite: 16]
+    const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";
 
     let chartBarras, chartDona;
     let eventosActuales = [];
 
-    // Etiquetas fijas en barras (números) y dona (porcentajes)
+    function dibujarCajaEtiqueta(ctx, texto, x, y, bgColor, textColor) {
+      ctx.save();
+      ctx.font = "800 11px 'Segoe UI', system-ui, sans-serif";
+      const padX = 6;
+      const w = ctx.measureText(texto).width + padX * 2;
+      const h = 20;
+      const r = 6;
+      const left = x - w / 2;
+      const top = y - h / 2;
+
+      ctx.fillStyle = bgColor;
+      ctx.beginPath();
+      ctx.moveTo(left + r, top);
+      ctx.lineTo(left + w - r, top);
+      ctx.quadraticCurveTo(left + w, top, left + w, top + r);
+      ctx.lineTo(left + w, top + h - r);
+      ctx.quadraticCurveTo(left + w, top + h, left + w - r, top + h);
+      ctx.lineTo(left + r, top + h);
+      ctx.quadraticCurveTo(left, top + h, left, top + h - r);
+      ctx.lineTo(left, top + r);
+      ctx.quadraticCurveTo(left, top, left + r, top);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = textColor;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(texto, x, y + 0.5);
+      ctx.restore();
+    }
+
     const etiquetasFijasPlugin = {
       id: "etiquetasFijas",
       afterDatasetsDraw(chart) {
         const { ctx } = chart;
-        ctx.save();
 
         if (chart.config.type === "bar") {
           chart.data.datasets.forEach((dataset, datasetIndex) => {
             const meta = chart.getDatasetMeta(datasetIndex);
             meta.data.forEach((bar, index) => {
               const val = dataset.data[index];
+              ctx.save();
               ctx.fillStyle = "#f8fafc";
               ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
               ctx.textAlign = "center";
               ctx.textBaseline = "bottom";
               ctx.fillText(String(val), bar.x, bar.y - 4);
+              ctx.restore();
             });
           });
         }
@@ -411,22 +436,9 @@
             if (!total || val <= 0) return;
             const pct = ((val / total) * 100).toFixed(1) + "%";
             const pos = arc.tooltipPosition();
-
-            ctx.font = "800 11px 'Segoe UI', system-ui, sans-serif";
-            const ancho = ctx.measureText(pct).width + 10;
-            ctx.fillStyle = "rgba(5, 11, 22, 0.88)";
-            ctx.beginPath();
-            ctx.roundRect(pos.x - ancho / 2, pos.y - 10, ancho, 20, 6);
-            ctx.fill();
-
-            ctx.fillStyle = "#fde68a";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(pct, pos.x, pos.y);
+            dibujarCajaEtiqueta(ctx, pct, pos.x, pos.y, "rgba(5, 11, 22, 0.88)", "#fde68a");
           });
         }
-
-        ctx.restore();
       }
     };
 
@@ -445,7 +457,7 @@
           `🎄 Sincronizado con Google Sheets • Última carga: ${new Date().toLocaleTimeString()}`;
       } catch (err) {
         document.getElementById("estadoSync").textContent =
-          "No se pudo leer en vivo (revisa acceso 'Cualquier persona' en Apps Script o abre desde GitHub Pages/servidor local).";
+          "No se pudo leer en vivo (revisa acceso 'Cualquier persona' en Apps Script o abre desde GitHub Pages).";
       }
 
       eventosActuales = eventos;
