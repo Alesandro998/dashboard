@@ -110,27 +110,6 @@
       border-color: var(--xmas-gold);
     }
 
-    .live-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
-      display: inline-block;
-      animation: pulseLive 1.5s infinite;
-    }
-
-    .live-dot.paused {
-      background: #f59e0b;
-      box-shadow: none;
-      animation: none;
-    }
-
-    @keyframes pulseLive {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
     .kpi-card {
       background: var(--xmas-card);
       border: 1px solid var(--xmas-border);
@@ -253,10 +232,7 @@
           <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
             <span class="badge rounded-pill text-bg-danger">🎅 Edición Navideña 2026</span>
             <span class="badge rounded-pill" style="background: rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4);">🎄 Equipo de 4 Integrantes</span>
-            <span class="badge rounded-pill d-inline-flex align-items-center gap-1" style="background: rgba(251,191,36,0.16); color:#fde68a; border:1px solid rgba(251,191,36,0.35);">
-              <span class="live-dot" id="liveDot"></span>
-              <span id="liveText">Auto-sync cada 10s</span>
-            </span>
+            <span class="badge rounded-pill" style="background: rgba(251,191,36,0.16); color:#fde68a; border:1px solid rgba(251,191,36,0.35);">Simulación Segura</span>
           </div>
           <h1 class="h3 fw-bold mb-1 xmas-title">Dashboard de Resultados — Campaña Smishing Navideño</h1>
           <p class="text-secondary small mb-0" id="estadoSync">Conectando con Google Sheets...</p>
@@ -272,7 +248,6 @@
               <span class="input-group-text bg-dark border-secondary text-secondary">Integrantes</span>
               <input type="number" id="numIntegrantes" class="form-control bg-dark text-light border-secondary text-center" value="4" min="1" style="width: 58px;" onchange="renderizarDashboard(eventosActuales)" />
             </div>
-            <button type="button" class="btn btn-sm btn-outline-warning" id="btnAutoSync" onclick="toggleAutoSync()">⏸ Pausar auto</button>
             <button type="button" class="btn btn-sm btn-xmas-gift px-3 py-2" onclick="cargarDatos(true)">🎁 Actualizar</button>
           </div>
         </div>
@@ -397,13 +372,12 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";
-    const INTERVALO_MS = 10000; // Actualiza cada 10 segundos
+    const INTERVALO_MS = 1000;
 
     let chartBarras, chartDona;
     let eventosActuales = [];
     let ultimaFirmaDatos = "";
-    let autoSyncActivo = true;
-    let timerId = null;
+    let peticionEnCurso = false;
 
     function dibujarCajaEtiqueta(ctx, texto, x, y, bgColor, textColor) {
       ctx.save();
@@ -473,40 +447,10 @@
 
     Chart.register(etiquetasFijasPlugin);
 
-    function toggleAutoSync() {
-      autoSyncActivo = !autoSyncActivo;
-      const btn = document.getElementById("btnAutoSync");
-      const dot = document.getElementById("liveDot");
-      const liveText = document.getElementById("liveText");
-
-      if (autoSyncActivo) {
-        btn.textContent = "⏸ Pausar auto";
-        btn.classList.remove("btn-warning");
-        btn.classList.add("btn-outline-warning");
-        dot.classList.remove("paused");
-        liveText.textContent = "Auto-sync cada 10s";
-        iniciarTimer();
-        cargarDatos(true);
-      } else {
-        btn.textContent = "▶ Reanudar auto";
-        btn.classList.remove("btn-outline-warning");
-        btn.classList.add("btn-warning");
-        dot.classList.add("paused");
-        liveText.textContent = "Auto-sync pausado";
-        if (timerId) clearInterval(timerId);
-      }
-    }
-
-    function iniciarTimer() {
-      if (timerId) clearInterval(timerId);
-      timerId = setInterval(() => {
-        if (autoSyncActivo && !document.hidden) {
-          cargarDatos(false);
-        }
-      }, INTERVALO_MS);
-    }
-
     async function cargarDatos(forzarRender = false) {
+      if (peticionEnCurso) return;
+      peticionEnCurso = true;
+
       try {
         const sep = API_URL.includes("?") ? "&" : "?";
         const res = await fetch(`${API_URL}${sep}api=datos&_t=${Date.now()}`, { cache: "no-store" });
@@ -515,7 +459,7 @@
         const nuevaFirma = JSON.stringify(eventos);
 
         document.getElementById("estadoSync").textContent =
-          `🎄 En vivo con Google Sheets • Última revisión: ${new Date().toLocaleTimeString()}`;
+          `🎄 Conectado a Google Sheets • Última carga: ${new Date().toLocaleTimeString()}`;
 
         if (forzarRender || nuevaFirma !== ultimaFirmaDatos) {
           ultimaFirmaDatos = nuevaFirma;
@@ -525,6 +469,8 @@
       } catch (err) {
         document.getElementById("estadoSync").textContent =
           "No se pudo leer en vivo (revisa acceso 'Cualquier persona' en Apps Script o abre desde GitHub Pages).";
+      } finally {
+        peticionEnCurso = false;
       }
     }
 
@@ -643,7 +589,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 350 },
+          animation: { duration: 250 },
           layout: { padding: { top: 22 } },
           scales: { y: { beginAtZero: true, suggestedMax: maxY, ticks: { precision: 0 } } },
           plugins: { legend: { position: "top" } }
@@ -667,7 +613,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 350 },
+          animation: { duration: 250 },
           cutout: "58%",
           plugins: { legend: { position: "bottom" } }
         }
@@ -733,7 +679,9 @@
     }
 
     cargarDatos(true);
-    iniciarTimer();
+    setInterval(() => {
+      if (!document.hidden) cargarDatos(false);
+    }, INTERVALO_MS);
   </script>
 </body>
 </html>
