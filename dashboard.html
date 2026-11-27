@@ -1,188 +1,388 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Smishing Navideño 2026</title>
+  <title>🎄 Dashboard Navideño — Campaña Smishing 2026</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg: #020617;
-      --card: #0f172a;
-      --card-2: #131c31;
-      --border: #1e293b;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --cyan: #22d3ee;
-      --green: #10b981;
-      --red: #f43f5e;
-      --amber: #f59e0b;
-      --purple: #a855f7;
+      --xmas-bg: #050b16;
+      --xmas-card: #0d192c;
+      --xmas-card-2: #13233d;
+      --xmas-border: rgba(251, 191, 36, 0.25);
+      --xmas-gold: #fbbf24;
+      --xmas-gold-soft: #fde68a;
+      --xmas-red: #ef4444;
+      --xmas-green: #10b981;
+      --xmas-ice: #38bdf8;
     }
-    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); padding: 24px; }
-    .container { max-width: 1280px; margin: 0 auto; }
 
-    .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; padding: 18px 22px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
-    .header h1 { margin: 0; font-size: 22px; }
-    .header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    input, select, button { border-radius: 10px; border: 1px solid var(--border); font-size: 13px; padding: 9px 12px; }
-    input[type="number"] { background: var(--bg); color: var(--text); width: 72px; text-align: center; }
-    select { background: var(--bg); color: var(--text); cursor: pointer; }
-    label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-    button { background: linear-gradient(135deg, #06b6d4, #6366f1); color: white; font-weight: 700; border: none; cursor: pointer; }
-    button:hover { opacity: 0.92; }
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
 
-    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
-    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; position: relative; overflow: hidden; }
-    .kpi::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--cyan)); }
-    .kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
-    .kpi .value { font-size: 28px; font-weight: 800; margin: 6px 0 2px; }
-    .kpi .sub { font-size: 12px; color: var(--muted); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #f8fafc;
+      background:
+        radial-gradient(circle at 10% 6%, rgba(239, 68, 68, 0.18), transparent 35%),
+        radial-gradient(circle at 90% 10%, rgba(16, 185, 129, 0.18), transparent 36%),
+        radial-gradient(circle at 50% 95%, rgba(251, 191, 36, 0.11), transparent 45%),
+        var(--xmas-bg);
+      padding: 14px 0 28px;
+    }
 
-    .grid-main { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .grid-sub { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
-    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
-    .panel-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .panel h3 { margin: 0; font-size: 16px; }
-    .panel .desc { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
-    .chart-box { position: relative; height: 275px; }
+    /* Guirnalda navideña superior */
+    .garland {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 1320px;
+      margin: 0 auto 14px;
+      padding: 6px 18px;
+      border-bottom: 1px dashed rgba(251, 191, 36, 0.28);
+      user-select: none;
+    }
 
-    .table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
-    th { background: var(--card-2); color: var(--muted); font-size: 11px; text-transform: uppercase; position: sticky; top: 0; z-index: 1; }
-    tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+    .bulb {
+      width: 10px;
+      height: 14px;
+      border-radius: 50% 50% 45% 45%;
+      display: inline-block;
+      animation: twinkle 2.4s infinite ease-in-out;
+    }
 
-    .risk-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; display: inline-block; }
-    .risk-alto { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
-    .risk-medio { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .risk-bajo { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .risk-slate { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .bulb:nth-child(4n+1) { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation-delay: 0s; }
+    .bulb:nth-child(4n+2) { background: #10b981; box-shadow: 0 0 10px #10b981; animation-delay: 0.5s; }
+    .bulb:nth-child(4n+3) { background: #fbbf24; box-shadow: 0 0 10px #fbbf24; animation-delay: 1s; }
+    .bulb:nth-child(4n+4) { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; animation-delay: 1.5s; }
 
-    @media (max-width: 960px) {
-      .grid-main, .grid-sub { grid-template-columns: 1fr; }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.9); }
+    }
+
+    .xmas-box {
+      background: linear-gradient(180deg, rgba(13, 25, 44, 0.96), rgba(8, 16, 30, 0.97));
+      border: 1px solid var(--xmas-border);
+      border-radius: 18px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+    }
+
+    .xmas-hero {
+      position: relative;
+      overflow: hidden;
+      border-top: 4px solid var(--xmas-red);
+    }
+
+    .xmas-hero::before {
+      content: "❄️ ✨ 🎄 🎁 🔔 ❄️";
+      position: absolute;
+      right: 22px;
+      bottom: 8px;
+      font-size: 13px;
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    .xmas-title {
+      background: linear-gradient(90deg, #ffffff 0%, #fde68a 60%, #fca5a5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-xmas-gift {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #d97706 100%);
+      color: #fff;
+      font-weight: 700;
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .btn-xmas-gift:hover, .btn-xmas-gift:focus {
+      color: #fff;
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      border-color: var(--xmas-gold);
+    }
+
+    .kpi-card {
+      background: var(--xmas-card);
+      border: 1px solid var(--xmas-border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(251, 191, 36, 0.55);
+    }
+
+    .kpi-stripe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+    }
+
+    .kpi-num {
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 5px 0 3px;
+    }
+
+    .kpi-desc {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 285px;
+    }
+
+    .matrix-scroll {
+      max-height: 290px;
+      overflow-y: auto;
+      border: 1px solid rgba(251, 191, 36, 0.16);
+      border-radius: 12px;
+    }
+
+    .table {
+      --bs-table-bg: transparent;
+      --bs-table-hover-bg: rgba(251, 191, 36, 0.06);
+      margin-bottom: 0;
+      font-size: 0.82rem;
+    }
+
+    .table thead th {
+      background: var(--xmas-card-2);
+      color: var(--xmas-gold-soft);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom-color: rgba(251, 191, 36, 0.25);
+    }
+
+    .table td, .table th {
+      padding: 10px 12px;
+      white-space: nowrap;
+      vertical-align: middle;
+      border-bottom-color: rgba(148, 163, 184, 0.12);
+    }
+
+    .pill-low {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .pill-mid {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .pill-high {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    .pill-neutral {
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.3);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div>
-        <h1>🎄 Dashboard de Resultados — Campaña Smishing Navideño</h1>
-        <p id="estadoSync">Conectando con Google Sheets...</p>
-      </div>
-      <div class="controls">
-        <label>Enviados/int.: <input type="number" id="enviadosPorIntegrante" value="20" min="1" /></label>
-        <label>Integrantes: <input type="number" id="numIntegrantes" value="3" min="1" /></label>
-        <button onclick="cargarDatos()">🔄 Actualizar</button>
+  <!-- Guirnalda de luces navideñas -->
+  <div class="garland" aria-hidden="true">
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+  </div>
+
+  <div class="container-xl">
+    <!-- Encabezado -->
+    <div class="xmas-box xmas-hero p-4 mb-4">
+      <div class="row align-items-center g-3">
+        <div class="col-lg-7">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="badge rounded-pill text-bg-danger">🎅 Edición Navideña 2026</span>
+            <span class="badge rounded-pill" style="background: rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4);">🎄 Equipo de 4 Integrantes</span>
+            <span class="badge rounded-pill" style="background: rgba(251,191,36,0.16); color:#fde68a; border:1px solid rgba(251,191,36,0.35);">Simulación Segura</span>
+          </div>
+          <h1 class="h3 fw-bold mb-1 xmas-title">Dashboard de Resultados — Campaña Smishing Navideño</h1>
+          <p class="text-secondary small mb-0" id="estadoSync">Conectando con Google Sheets...</p>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="d-flex flex-wrap justify-content-lg-end align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: auto;">
+              <span class="input-group-text bg-dark border-secondary text-secondary">Enviados/int.</span>
+              <input type="number" id="enviadosPorIntegrante" class="form-control bg-dark text-light border-secondary text-center" value="20" min="1" style="width: 66px;" />
+            </div>
+            <div class="input-group input-group-sm" style="width: auto;">
+              <span class="input-group-text bg-dark border-secondary text-secondary">Integrantes</span>
+              <input type="number" id="numIntegrantes" class="form-control bg-dark text-light border-secondary text-center" value="4" min="1" style="width: 62px;" />
+            </div>
+            <button class="btn btn-sm btn-xmas-gift px-3 py-2" onclick="cargarDatos()">🎁 Actualizar</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="kpis">
-      <div class="kpi" style="--accent: var(--cyan);">
-        <div class="label">Total Enviados</div>
-        <div class="value" id="kpiEnviados">0</div>
-        <div class="sub" id="kpiSubEnviados">Mínimo 20 por integrante</div>
+    <!-- KPIs -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+          <div class="kpi-stripe" style="background: linear-gradient(90deg, #38bdf8, #0284c7);"></div>
+          <div class="kpi-label">✉️ Total Enviados</div>
+          <div class="kpi-num text-info" id="kpiEnviados">0</div>
+          <div class="kpi-desc" id="kpiSubEnviados">20 enviados × 4 integrantes</div>
+        </div>
       </div>
-      <div class="kpi" style="--accent: var(--red);">
-        <div class="label">Caídas Únicas</div>
-        <div class="value" id="kpiUnicos">0</div>
-        <div class="sub" id="kpiSubEventos">Eventos registrados: 0</div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+          <div class="kpi-stripe" style="background: linear-gradient(90deg, #ef4444, #f97316);"></div>
+          <div class="kpi-label">🎯 Caídas Únicas</div>
+          <div class="kpi-num text-danger" id="kpiUnicos">0</div>
+          <div class="kpi-desc" id="kpiSubEventos">Eventos registrados: 0</div>
+        </div>
       </div>
-      <div class="kpi" style="--accent: var(--amber);">
-        <div class="label">Tasa de Interacción</div>
-        <div class="value" id="kpiTasa">0.0%</div>
-        <div class="sub">Únicos / Enviados efectivos</div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+          <div class="kpi-stripe" style="background: linear-gradient(90deg, #fbbf24, #d97706);"></div>
+          <div class="kpi-label">🔔 Tasa de Interacción</div>
+          <div class="kpi-num text-warning" id="kpiTasa">0.0%</div>
+          <div class="kpi-desc">Únicos / Enviados efectivos</div>
+        </div>
       </div>
-      <div class="kpi" style="--accent: var(--green);">
-        <div class="label">Mini Taller Completado</div>
-        <div class="value" id="kpiTaller">0.0%</div>
-        <div class="sub" id="kpiSubTaller">0 de 0 que cayeron</div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+          <div class="kpi-stripe" style="background: linear-gradient(90deg, #10b981, #059669);"></div>
+          <div class="kpi-label">🎓 Mini Taller Completado</div>
+          <div class="kpi-num text-success" id="kpiTaller">0.0%</div>
+          <div class="kpi-desc" id="kpiSubTaller">0 de 0 que cayeron</div>
+        </div>
       </div>
     </div>
 
-    <div class="grid-main">
-      <div class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>📊 Comparativa por Integrante</h3>
-            <p class="desc">Cantidad visible sobre cada barra: enviados, caídas únicas y taller completado</p>
+    <!-- Barras + Dona -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-7">
+        <div class="xmas-box p-4 h-100">
+          <div class="mb-3">
+            <h2 class="h6 fw-bold mb-1" style="color: var(--xmas-gold-soft);">🎄 Comparativa por Integrante (ALU001 – ALU004)</h2>
+            <p class="text-secondary small mb-0">Valores numéricos fijos sobre cada barra: enviados, caídas únicas y taller completado</p>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartBarras"></canvas>
           </div>
         </div>
-        <div class="chart-box"><canvas id="chartBarras"></canvas></div>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>🍩 Estado de los Participantes (%)</h3>
-            <p class="desc">Porcentajes fijos sobre el total de mensajes enviados</p>
+      <div class="col-lg-5">
+        <div class="xmas-box p-4 h-100">
+          <div class="mb-3">
+            <h2 class="h6 fw-bold mb-1" style="color: var(--xmas-gold-soft);">🎁 Distribución de Participantes (%)</h2>
+            <p class="text-secondary small mb-0">Porcentajes fijos visibles sobre el total de mensajes enviados</p>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartDona"></canvas>
           </div>
         </div>
-        <div class="chart-box"><canvas id="chartDona"></canvas></div>
       </div>
     </div>
 
-    <div class="grid-sub">
-      <div class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>📋 Matriz de Interacciones Registradas</h3>
-            <p class="desc">Bitácora anónima en tiempo real (hora, código, evento y estado del taller)</p>
+    <!-- Matriz + Semáforo -->
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="xmas-box p-4 h-100">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+              <h2 class="h6 fw-bold mb-1" style="color: var(--xmas-gold-soft);">📋 Matriz de Interacciones Registradas</h2>
+              <p class="text-secondary small mb-0">Registro anónimo en tiempo real: hora, código, evento y estado del taller</p>
+            </div>
+            <select id="filtroAlumno" class="form-select form-select-sm bg-dark text-light border-secondary" style="width: auto;" onchange="renderizarMatriz()">
+              <option value="ALL">Todos los integrantes</option>
+            </select>
           </div>
-          <select id="filtroAlumno" onchange="renderizarMatriz()">
-            <option value="ALL">Todos los códigos</option>
-          </select>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Hora</th>
-                <th>Código</th>
-                <th>Evento</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody id="tablaMatriz"></tbody>
-          </table>
+
+          <div class="matrix-scroll">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Hora</th>
+                  <th>Código</th>
+                  <th>Evento</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tablaMatriz"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>🛡️ Semáforo de Exposición por Integrante</h3>
-            <p class="desc">Resumen con denominador explícito por integrante</p>
+      <div class="col-lg-5">
+        <div class="xmas-box p-4 h-100">
+          <div class="mb-3">
+            <h2 class="h6 fw-bold mb-1" style="color: var(--xmas-gold-soft);">🌟 Semáforo de Exposición por Integrante</h2>
+            <p class="text-secondary small mb-0">Tasa deduplicada con denominador explícito por integrante</p>
           </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Enviados</th>
-                <th>Únicos</th>
-                <th>Tasa</th>
-                <th>Riesgo</th>
-              </tr>
-            </thead>
-            <tbody id="tablaResumen"></tbody>
-          </table>
+
+          <div class="matrix-scroll">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Enviados</th>
+                  <th>Únicos</th>
+                  <th>Tasa</th>
+                  <th>Riesgo</th>
+                </tr>
+              </thead>
+              <tbody id="tablaResumen"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxqRZ-7EfbbIuy1xRR3lrxdIG2Ya95IKB4ZYlHJFh1gca0a4TirDNO0SgG9ur5d5GqC9g/exec";[cite: 16]
 
     let chartBarras, chartDona;
     let eventosActuales = [];
 
-    // Plugin para dibujar números fijos sobre barras y porcentajes fijos en la dona
+    // Etiquetas fijas en barras (números) y dona (porcentajes)
     const etiquetasFijasPlugin = {
       id: "etiquetasFijas",
       afterDatasetsDraw(chart) {
@@ -213,13 +413,13 @@
             const pos = arc.tooltipPosition();
 
             ctx.font = "800 11px 'Segoe UI', system-ui, sans-serif";
-            const anchoTexto = ctx.measureText(pct).width + 10;
-            ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+            const ancho = ctx.measureText(pct).width + 10;
+            ctx.fillStyle = "rgba(5, 11, 22, 0.88)";
             ctx.beginPath();
-            ctx.roundRect(pos.x - anchoTexto / 2, pos.y - 10, anchoTexto, 20, 6);
+            ctx.roundRect(pos.x - ancho / 2, pos.y - 10, ancho, 20, 6);
             ctx.fill();
 
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = "#fde68a";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(pct, pos.x, pos.y);
@@ -242,10 +442,10 @@
           eventos = json.eventos;
         }
         document.getElementById("estadoSync").textContent =
-          `Sincronizado con Google Sheets • Última carga: ${new Date().toLocaleTimeString()}`;
+          `🎄 Sincronizado con Google Sheets • Última carga: ${new Date().toLocaleTimeString()}`;
       } catch (err) {
         document.getElementById("estadoSync").textContent =
-          "No se pudo leer en vivo (revisa permisos de Apps Script en 'Cualquier persona' o abre desde GitHub Pages/servidor local).";
+          "No se pudo leer en vivo (revisa acceso 'Cualquier persona' en Apps Script o abre desde GitHub Pages/servidor local).";
       }
 
       eventosActuales = eventos;
@@ -260,7 +460,7 @@
 
     function renderizarDashboard(eventos) {
       const enviadosPorInt = Math.max(1, parseInt(document.getElementById("enviadosPorIntegrante").value) || 20);
-      const numInt = Math.max(1, parseInt(document.getElementById("numIntegrantes").value) || 1);
+      const numInt = Math.max(1, parseInt(document.getElementById("numIntegrantes").value) || 4);
       const totalEnviados = enviadosPorInt * numInt;
 
       const codigosAlumnos = [];
@@ -275,7 +475,7 @@
 
       const selectFiltro = document.getElementById("filtroAlumno");
       const valorPrevio = selectFiltro.value;
-      selectFiltro.innerHTML = `<option value="ALL">Todos los códigos</option>`;
+      selectFiltro.innerHTML = `<option value="ALL">Todos los integrantes</option>`;
       codigosAlumnos.forEach(c => {
         selectFiltro.innerHTML += `<option value="${c}">${c}</option>`;
       });
@@ -313,7 +513,7 @@
       const tasaTaller = totalUnicos > 0 ? ((totalTaller / totalUnicos) * 100).toFixed(1) : "0.0";
 
       document.getElementById("kpiEnviados").textContent = totalEnviados;
-      document.getElementById("kpiSubEnviados").textContent = `${enviadosPorInt} enviados × ${codigosAlumnos.length} códigos`;
+      document.getElementById("kpiSubEnviados").textContent = `${enviadosPorInt} enviados × ${codigosAlumnos.length} integrantes`;
       document.getElementById("kpiUnicos").textContent = totalUnicos;
       document.getElementById("kpiSubEventos").textContent = `Eventos registrados: ${eventos.length}`;
       document.getElementById("kpiTasa").textContent = `${tasa}%`;
@@ -329,9 +529,9 @@
       codigosAlumnos.forEach((c, idx) => {
         const u = arrUnicos[idx];
         const pct = (u / enviadosPorInt) * 100;
-        let badge = `<span class="risk-badge risk-bajo">Bajo</span>`;
-        if (pct >= 40) badge = `<span class="risk-badge risk-alto">Alto</span>`;
-        else if (pct >= 20) badge = `<span class="risk-badge risk-medio">Medio</span>`;
+        let badge = `<span class="badge rounded-pill pill-low">Bajo</span>`;
+        if (pct >= 40) badge = `<span class="badge rounded-pill pill-high">Alto</span>`;
+        else if (pct >= 20) badge = `<span class="badge rounded-pill pill-mid">Medio</span>`;
 
         tbodyResumen.innerHTML += `
           <tr>
@@ -350,7 +550,7 @@
       if (chartDona) chartDona.destroy();
 
       Chart.defaults.color = "#94a3b8";
-      Chart.defaults.borderColor = "#1e293b";
+      Chart.defaults.borderColor = "rgba(148, 163, 184, 0.14)";
 
       const maxY = Math.max(enviadosPorInt + 3, ...arrEnviados, 5);
 
@@ -359,15 +559,15 @@
         data: {
           labels: codigosAlumnos,
           datasets: [
-            { label: "Enviados", data: arrEnviados, backgroundColor: "rgba(34, 211, 238, 0.78)", borderRadius: 6 },
-            { label: "Caídas Únicas", data: arrUnicos, backgroundColor: "rgba(244, 63, 94, 0.88)", borderRadius: 6 },
+            { label: "Enviados", data: arrEnviados, backgroundColor: "rgba(56, 189, 248, 0.82)", borderRadius: 6 },
+            { label: "Caídas Únicas", data: arrUnicos, backgroundColor: "rgba(239, 68, 68, 0.88)", borderRadius: 6 },
             { label: "Taller Completado", data: arrTaller, backgroundColor: "rgba(16, 185, 129, 0.88)", borderRadius: 6 }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 20 } },
+          layout: { padding: { top: 22 } },
           scales: { y: { beginAtZero: true, suggestedMax: maxY, ticks: { precision: 0 } } },
           plugins: { legend: { position: "top" } }
         }
@@ -384,7 +584,7 @@
             data: [sinClic, totalTaller, cayeronSinTaller],
             backgroundColor: ["#334155", "#10b981", "#f59e0b"],
             borderWidth: 2,
-            borderColor: "#0f172a"
+            borderColor: "#0d192c"
           }]
         },
         options: {
@@ -419,28 +619,28 @@
       const filtrados = eventosActuales.filter(ev => filtro === "ALL" || ev.alumno === filtro);
 
       if (!filtrados.length) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:18px;">Sin eventos registrados todavía</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary py-4">Sin eventos registrados todavía</td></tr>`;
         return;
       }
 
       [...filtrados].reverse().forEach(ev => {
         const clave = ev.clave || `${ev.alumno}-${ev.participante}`;
         const hora = extraerHora(ev.fechaHora);
-        let estadoHtml = `<span class="risk-badge risk-slate">Registrado</span>`;
+        let estadoHtml = `<span class="badge rounded-pill pill-neutral">Registrado</span>`;
 
         if (ev.evento === "click_confirmado") {
           const repetido = vistosClic.has(clave);
           vistosClic.add(clave);
           if (clavesConTaller.has(clave)) {
-            estadoHtml = `<span class="risk-badge risk-bajo">Caída + Taller OK</span>`;
+            estadoHtml = `<span class="badge rounded-pill pill-low">Caída + Taller OK</span>`;
           } else {
-            estadoHtml = `<span class="risk-badge risk-medio">Caída sin taller</span>`;
+            estadoHtml = `<span class="badge rounded-pill pill-mid">Caída sin taller</span>`;
           }
           if (repetido || (conteoClics[clave] || 0) > 1) {
-            estadoHtml += ` <span class="risk-badge risk-slate">Clic x${conteoClics[clave]}</span>`;
+            estadoHtml += ` <span class="badge rounded-pill pill-neutral">Clic x${conteoClics[clave]}</span>`;
           }
         } else if (ev.evento === "taller_completado") {
-          estadoHtml = `<span class="risk-badge risk-bajo">Taller completado</span>`;
+          estadoHtml = `<span class="badge rounded-pill pill-low">Taller completado</span>`;
         }
 
         tbody.innerHTML += `
